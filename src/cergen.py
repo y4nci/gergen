@@ -158,7 +158,20 @@ class gergen:
 
     def __getitem__(self, index):
     #Indexing for gergen objects
-        pass
+        if self.__veri is None:
+            raise ValueError('Tensor is empty')
+        
+        if type(index) == int:
+            return self.__veri[index]
+        
+        if type(index) == tuple:
+            val_to_return = self.__veri
+
+            while len(index) > 0:
+                val_to_return = val_to_return[index[0]]
+                index = index[1:]
+
+            return val_to_return
 
     def __str__(self):
         #Generates a string representation
