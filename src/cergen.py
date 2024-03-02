@@ -22,6 +22,21 @@ def create_nested_list(boyut: tuple, aralik_list: list, current_dimension_idx: i
     
     return [create_nested_list(boyut, aralik_list, current_dimension_idx + 1, use_integer) for _ in range(current_dimension)]
 
+def get_transpose_of_nested_list(nested_list: list | int | float) -> list | int | float:
+    if (
+        type(nested_list) == int or
+        type(nested_list) == float or
+        type(nested_list[0]) == int or
+        type(nested_list[0]) == float
+    ):
+        return nested_list
+    
+    return [
+        get_transpose_of_nested_list(
+            [nested_list[i][j] for i in range(len(nested_list))]
+        ) for j in range(len(nested_list[0]))
+    ]
+
 
 ######################################################################
 #-------------------- FUNDAMENTAL FUNCTIONALITIES -------------------#
@@ -137,6 +152,8 @@ class gergen:
     # To create an empty tensor, simply instantiate the class without arguments:
     # empty_tensor = gergen()
         self.__veri = veri
+        self.D = get_transpose_of_nested_list(veri)
+
         pass
 
     def __getitem__(self, index):
