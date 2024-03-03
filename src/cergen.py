@@ -96,6 +96,10 @@ def rastgele_gercek(boyut: tuple, aralik: tuple = (0.0,1.0), dagilim = None) -> 
     return gergen(create_nested_list(boyut, aralik_list, 0, False))
 
 
+######################################################################
+#------------------------ OPERATION CLASSES -------------------------#
+######################################################################
+
 class Operation:
     def __call__(self, *operands):
         """
@@ -127,11 +131,146 @@ class Operation:
         raise NotImplementedError
 
 
+"""
+The Operation class serves as a base class for operations in the gergen class. It is defined as above.
+
+The call method allows instances of subclasses of Operation to be used as if they were functions, enabling a concise syntax for applying
+operations to operands. The ileri method is intended to be overridden by subclasses to define the specific behavior of the operation.
+In the context of the gergen class, the Operation class serves as a foundational component for defining various mathematical and tensor
+operations. When creating new operations, such as addition, multiplication, or more complex functions, you should define subclasses of
+Operation and implement the ileri method to encapsulate the operation’s specific logic. The call method in the Operation base class will
+automatically handle the invocation of the ileri method, treating instances of these subclasses as callable objects. To integrate an
+operation into the gergen class, instantiate the corresponding Operation subclass and pass the necessary operands (other gergen instances
+or scalars) to perform the operation, ultimately returning a new gergen object that represents the result.
+"""
+
+
+class Addition(Operation):
+    def adder(self, left: Union[list, int, float], right: Union[list, int, float]) -> Union[list, int, float]:
+        """
+        For gergen-to-gergen addition, it iterates over corresponding el- ements from both instances, adding them together. If one
+        operand is a scalar, this value is added to every element within the gergen instance. The method performs a dimensionality
+        check when both operands are gergen instances to ensure their shapes are compatible for element-wise operations. If the
+        dimensions do not align, a ValueError is raised, indicating a mismatch in dimensions. Additionally, if the other parameter is
+        of an unsupported type, a TypeError is raised to maintain type safety. The outcome of the addition is should be returned in a 
+        new gergen object.
+        """
+        if (
+            isinstance(left, (list)) and
+            isinstance(right, (list))
+        ):
+            """
+            both gergos (represented by lists)
+            """
+            
+            return ([
+                self.adder(
+                    left[i],
+                    right[i]
+                ) for i in range(len(left))
+            ])
+        
+        if (
+            isinstance(left, (int, float)) and
+            isinstance(right, (int, float))
+        ):
+            """
+            both scalars
+            """
+            return left + right
+        
+        if isinstance(left, (int, float)):
+            """
+            left is scalar
+            """
+            return ([
+                self.adder(left, el) for el in right
+            ])
+
+        if isinstance(right, (int, float)):
+            """
+            right is scalar
+            """
+            return ([
+                self.adder(el, right) for el in left
+            ])
+        
+        raise TypeError('Operands should be of type int, float, or gergen')
+
+    def ileri(self, *operands: Union['gergen', int, float]) -> 'gergen':
+        """
+        Defines the forward pass of the addition operation.
+        Adds the given operands element-wise.
+
+        Parameters:
+            *operands: Variable length operand list.
+
+        Returns:
+            The result of the addition operation.
+        """
+        if not all(isinstance(operand, (int, float, gergen)) for operand in operands):
+            raise TypeError('Operands should be of type int, float, or gergen')
+
+        if len(operands) < 2:
+            raise ValueError('Addition operation requires at least two operands')
+        
+        if len(operands) == 2:
+            if (
+                isinstance(operands[0], (gergen)) and
+                isinstance(operands[1], (gergen))
+            ):
+                if operands[0].boyut() != operands[1].boyut():
+                    raise ValueError('Operands should have the same shape')
+
+            #! WE WILL NOT USE THE GERGEN OBJECT IN adder FUNCTION. INSTEAD, WE WILL PASS THE listeye() OF THE GERGEN OBJECT.
+            neutralised_operands = [
+                operand if isinstance(operand, (int, float)) else operand.listeye()
+                    for operand in operands
+            ]
+
+            #! WE WILL RETURN THE RESULT AS A GERGEN OBJECT.
+            return gergen(self.adder(*neutralised_operands))
+
+        result = operands[0]
+
+        result = self(result, operands[1:])
+
+        return result
+    
+
+class Multiplication(Operation):
+    def multiplier(self, left, right):
+        """
+        This method fa- cilitates the multiplication of the gergen either with another gergen instance for element-wise multiplication,
+        or with a scalar (int/float), yielding a new gergen ob- ject as the result. The other parameter is permitted to be a gergen, an
+        integer, or a floating-point number. Error handling is incorporated to manage cases where the other parameter is neither a gergen
+        object nor a numerical scalar. If the dimen- sions of two gergen instances do not align for element-wise multiplication, or if an
+        incompatible type is provided for other, a TypeError or ValueError is raised.
+        """
+        if (
+            isinstance(left, (gergen)) and
+            isinstance(right, (gergen))
+        ):
+            """
+            both gergos
+            """
+            if left.boyut() != right.boyut():
+                raise ValueError('Operands should have the same shape')
+            
+
+
+
+
+######################################################################
+#------------------------- GERGOOOOOOOOOOOO -------------------------#
+######################################################################
+
 class gergen:
 
     __veri = None #A nested list of numbers representing the data
     D = None # Transpose of data
     __boyut = None #Dimensions of the derivative (Shape)
+    __adder = Addition()
 
 
     def __init__(self, veri=None):
@@ -218,7 +357,7 @@ class gergen:
         Called when a gergen object is added to another, using the '+' operator.
         The operation is element-wise.
         """
-        pass
+        return self.__adder(self, other)
 
     def __sub__(self, other: Union['gergen', int, float]) -> 'gergen':
         """

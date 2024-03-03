@@ -51,15 +51,31 @@ def test_fundamental_functionalities():
 
     print()
 
-    boyut = (1, 1, 2, 1, 1, 1, 1, 1, 1, 1)
+    boyut = (2, 2, 2)
     aralik = (1, 8)
     dagilim = 'uniform'
-    gergo = rastgele_dogal(boyut, aralik, dagilim)
-    print(gergo)
-    print(gergo.D)
-    print(gergo[0, 0, 1], gergo[0][0][1])
+    gergo1 = rastgele_dogal(boyut, aralik, dagilim)
+    print("gergo 1: ", gergo1)
+    print(gergo1.D)
+    print(gergo1[0])
 
     print()
+
+    boyut = (2, 2, 2)
+    aralik = (1, 8)
+    dagilim = 'uniform'
+    gergo2 = rastgele_dogal(boyut, aralik, dagilim)
+    print(gergo2)
+    print(gergo2.D)
+    print(gergo2[0, 0, 1], gergo2[0][0][1])
+
+    print()
+
+    print("toploo", gergo1 + gergo2)
+
+    print("toploo", gergo1 + 5)
+
+
 
 
 def test():
