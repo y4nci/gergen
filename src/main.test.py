@@ -1,5 +1,7 @@
 from cergen import *
 
+import math
+
 def test_fundamental_functionalities():
     boyut = ()
     aralik = (31.0, 91.0)
@@ -46,7 +48,7 @@ def test_fundamental_functionalities():
     dagilim = 'uniform'
     gergo = rastgele_dogal(boyut, aralik, dagilim)
     print(gergo)
-    print(gergo.D)
+    print(gergo.devrik())
     print(gergo[0])
 
     print()
@@ -83,9 +85,21 @@ def test_fundamental_functionalities():
 
     print("carp", gergo3 * 5)
 
-    print("bol", gergo3 / 5)
+    print("bol", gergo3 / gergo2)
 
     print("zor carpoo", gergo3 * gergo2)
+
+    print(unnest_list([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]))
+
+    print(gergen([[[[[[[[[100000000]]]]], [[1000]]]]]]).log())
+
+    print(nest_list([1, 2, 3, 4, 5, 6], (1, 2, 3)))
+
+    print(get_dimensions_of_nested_list(nest_list([1, 2, 3, 4, 5, 6], (1, 2, 3))))
+
+    print(nest_list([1, 2, 3, 4, 5, 6, 7, 8], (2, 2, 2)))
+
+    print(get_dimensions_of_nested_list(nest_list([1, 2, 3, 4, 5, 6, 7, 8], (2, 2, 2))))
 
 
 
