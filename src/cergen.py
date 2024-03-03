@@ -39,6 +39,63 @@ def get_transpose_of_nested_list(nested_list: list | int | float) -> list | int 
     ]
 
 
+def get_dimensions_of_nested_list(nested_list: list) -> tuple:
+    if type(nested_list) == int or type(nested_list) == float:
+        return ()
+
+    boyut_list = []
+    current_nested_list = nested_list
+
+    while type(current_nested_list[0]) != int and type(current_nested_list[0]) != float:
+        boyut_list.append(len(current_nested_list))
+        current_nested_list = current_nested_list[0]
+
+    boyut_list.append(len(current_nested_list))
+
+    return tuple(boyut_list)
+
+
+def unnest_list(nested_list: list) -> list:
+    if (
+        type(nested_list) == int or
+        type(nested_list) == float
+    ):
+        return [nested_list]
+    
+    return [
+        el for sublist in nested_list for el in unnest_list(sublist)
+    ]
+
+
+def nest_list(unnested_list: list, boyut: tuple) -> list:
+    if len(boyut) == 0:
+        return unnested_list[0]
+
+    if isinstance(unnested_list, (int, float)):
+        return unnested_list
+    
+    prod = 1
+
+    for el in boyut[1:]:
+        prod *= el
+
+    return [
+        nest_list(unnested_list[i:i+prod], boyut[1:]) for i in range(boyut[0])
+    ]
+
+
+def map_nested_list(nested_list: list, map_fn) -> list:
+    if (
+        type(nested_list) == int or
+        type(nested_list) == float
+    ):
+        return map_fn(nested_list)
+    
+    return [
+        map_nested_list(el, map_fn) for el in nested_list
+    ]
+
+
 ######################################################################
 #-------------------- FUNDAMENTAL FUNCTIONALITIES -------------------#
 ######################################################################
@@ -524,6 +581,7 @@ class gergen:
     __veri = None #A nested list of numbers representing the data
     D = None # Transpose of data
     __boyut = None #Dimensions of the derivative (Shape)
+
     __adder = Addition()
     __subtractor = Subtraction()
     __multiplier = Multiplication()
@@ -550,7 +608,7 @@ class gergen:
     # empty_tensor = gergen()
         self.__veri = veri
         self.D = get_transpose_of_nested_list(veri)
-        self.__boyut = self.boyut()
+        self.__boyut = get_dimensions_of_nested_list(veri)
 
     def __getitem__(self, index) -> gergen:
     #Indexing for gergen objects
@@ -626,62 +684,65 @@ class gergen:
 
     def uzunluk(self):
     # Returns the total number of elements in the gergen
-        pass
+        if type(self.__veri) == int or type(self.__veri) == float:
+            return 1
+        
+        return len(unnest_list(self.__veri))
+        
 
     def boyut(self):
     # Returns the shape of the gergen
-        if type(self.__veri) == int or type(self.__veri) == float:
-            return ()
-
-        boyut_list = []
-        current_nested_list = self.__veri
-
-        while type(current_nested_list[0]) != int and type(current_nested_list[0]) != float:
-            boyut_list.append(len(current_nested_list))
-            current_nested_list = current_nested_list[0]
-
-        boyut_list.append(len(current_nested_list))
-
-        return tuple(boyut_list)
+        return self.__boyut
 
     def devrik(self):
     # Returns the transpose of gergen
-        pass
+        return gergen(self.D)
 
     def sin(self):
     #Calculates the sine of each element in the given `gergen`.
-        pass
+        return gergen(map_nested_list(self.__veri, lambda x: math.sin(x)))
 
     def cos(self):
     #Calculates the cosine of each element in the given `gergen`.
-        pass
+        return gergen(map_nested_list(self.__veri, lambda x: math.cos(x)))
 
     def tan(self):
     #Calculates the tangent of each element in the given `gergen`.
-        pass
+        return gergen(map_nested_list(self.__veri, lambda x: math.tan(x)))
 
     def us(self, n: int):
     #Raises each element of the gergen object to the power 'n'. This is an element-wise operation.
-        pass
+        return gergen(map_nested_list(self.__veri, lambda x: x ** n))
 
     def log(self):
     #Applies the logarithm function to each element of the gergen object, using the base 10.
-        pass
+        return gergen(map_nested_list(self.__veri, lambda x: math.log(x, 10)))
 
     def ln(self):
     #Applies the natural logarithm function to each element of the gergen object.
-        pass
+        return gergen(map_nested_list(self.__veri, lambda x: math.log(x)))
 
     def L1(self):
     # Calculates and returns the L1 norm
-        pass
+        unnested_list = unnest_list(self.__veri)
+
+        return sum([abs(el) for el in unnested_list])
 
     def L2(self):
     # Calculates and returns the L2 norm
-        pass
+        unnested_list = unnest_list(self.__veri)
+
+        return math.sqrt(sum([el ** 2 for el in unnested_list]))
 
     def Lp(self, p):
     # Calculates and returns the Lp norm, where p should be positive integer
+        if p <= 0:
+            raise ValueError('p should be a positive integer')
+
+        unnested_list = unnest_list(self.__veri)
+
+        return sum([abs(el) ** p for el in unnested_list]) ** (1 / p)
+
         pass
 
     def listeye(self):
@@ -690,11 +751,25 @@ class gergen:
 
     def duzlestir(self):
     #Converts the gergen object's multi-dimensional structure into a 1D structure, effectively 'flattening' the object.
-        pass
+        return unnest_list(self.__veri)
 
     def boyutlandir(self, yeni_boyut):
     #Reshapes the gergen object to a new shape 'yeni_boyut', which is specified as a tuple.
-        pass
+        if not isinstance(yeni_boyut, tuple):
+            raise ValueError('yeni_boyut should be a tuple')
+        
+        current_uzunluk = self.uzunluk()
+        yeni_uzunluk = 1
+
+        for dim in yeni_boyut:
+            yeni_uzunluk *= dim
+
+        if yeni_uzunluk != current_uzunluk:
+            raise ValueError('The new shape should have the same number of elements as the original shape')
+
+        unnested_list = unnest_list(self.__veri)
+
+        return gergen(nest_list(unnested_list, yeni_boyut))
 
     def ic_carpim(self, other):
     #Calculates the inner (dot) product of this gergen object with another.
