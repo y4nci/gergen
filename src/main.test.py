@@ -65,15 +65,27 @@ def test_fundamental_functionalities():
     aralik = (1, 8)
     dagilim = 'uniform'
     gergo2 = rastgele_dogal(boyut, aralik, dagilim)
-    print(gergo2)
+    print("gergo 2:", gergo2)
     print(gergo2.D)
     print(gergo2[0, 0, 1], gergo2[0][0][1])
 
     print()
 
-    print("toploo", gergo1 + gergo2)
+    gergo3 = gergo1 + gergo2
 
-    print("toploo", gergo1 + 5)
+    print('GERGOOOOOOOOOOO3: ', gergo3)
+
+    print("toploo", gergo3 + gergo2)
+
+    print("toploo", gergo3 + 5)
+
+    print("cikartoo", gergo3 - 5)
+
+    print("carp", gergo3 * 5)
+
+    print("bol", gergo3 / 5)
+
+    print("zor carpoo", gergo3 * gergo2)
 
 
 
