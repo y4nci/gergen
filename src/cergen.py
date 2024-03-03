@@ -22,6 +22,7 @@ def create_nested_list(boyut: tuple, aralik_list: list, current_dimension_idx: i
     
     return [create_nested_list(boyut, aralik_list, current_dimension_idx + 1, use_integer) for _ in range(current_dimension)]
 
+
 def get_transpose_of_nested_list(nested_list: list | int | float) -> list | int | float:
     if (
         type(nested_list) == int or
@@ -153,16 +154,15 @@ class gergen:
     # empty_tensor = gergen()
         self.__veri = veri
         self.D = get_transpose_of_nested_list(veri)
+        self.__boyut = self.boyut()
 
-        pass
-
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> gergen:
     #Indexing for gergen objects
         if self.__veri is None:
             raise ValueError('Tensor is empty')
         
         if type(index) == int:
-            return self.__veri[index]
+            return gergen(self.__veri[index])
         
         if type(index) == tuple:
             val_to_return = self.__veri
@@ -171,7 +171,7 @@ class gergen:
                 val_to_return = val_to_return[index[0]]
                 index = index[1:]
 
-            return val_to_return
+            return gergen(val_to_return)
 
     def __str__(self):
         #Generates a string representation
@@ -185,20 +185,14 @@ class gergen:
             string_to_print += "0 boyutlu skaler gergen:\n" + str(self.__veri)
 
         else:
-            current_nested_list = self.__veri
+            # If the tensor is not a scalar, we can make use of __boyut variable to construct a string representation.
+            for dim in self.__boyut:
+                string_to_print += str(dim) + "x"
 
-            # If the tensor is not a scalar, we need to iterate through the rows and columns to build the string representation.
-            while True:
-                if type(current_nested_list[0]) == int or type(current_nested_list[0]) == float:
-                    string_to_print += str(len(current_nested_list))
-                    break
-                else:
-                    string_to_print += str(len(current_nested_list)) + "x"
-                    current_nested_list = current_nested_list[0]
+            string_to_print = string_to_print[:-1]
+            string_to_print += " boyutlu gergen:\n" + str(self.__veri)
 
-            string_to_print += " boyutlu gergen\n" + str(self.__veri)
-
-        return string_to_print
+        return string_to_print + "\n"
 
 
     def __mul__(self, other: Union['gergen', int, float]) -> 'gergen':
@@ -240,7 +234,19 @@ class gergen:
 
     def boyut(self):
     # Returns the shape of the gergen
-        pass
+        if type(self.__veri) == int or type(self.__veri) == float:
+            return ()
+
+        boyut_list = []
+        current_nested_list = self.__veri
+
+        while type(current_nested_list[0]) != int and type(current_nested_list[0]) != float:
+            boyut_list.append(len(current_nested_list))
+            current_nested_list = current_nested_list[0]
+
+        boyut_list.append(len(current_nested_list))
+
+        return tuple(boyut_list)
 
     def devrik(self):
     # Returns the transpose of gergen
@@ -284,7 +290,7 @@ class gergen:
 
     def listeye(self):
     #Converts the gergen object into a list or a nested list, depending on its dimensions.
-        pass
+        return self.__veri
 
     def duzlestir(self):
     #Converts the gergen object's multi-dimensional structure into a 1D structure, effectively 'flattening' the object.
