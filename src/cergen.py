@@ -70,6 +70,9 @@ def unnest_list(nested_list: list) -> list:
 def nest_list(unnested_list: list, boyut: tuple) -> list:
     if len(boyut) == 0:
         return unnested_list[0]
+    
+    if len(boyut) == 1 and boyut[0] == len(unnested_list):
+        return unnested_list
 
     if isinstance(unnested_list, (int, float)):
         return unnested_list
@@ -80,7 +83,7 @@ def nest_list(unnested_list: list, boyut: tuple) -> list:
         prod *= el
 
     return [
-        nest_list(unnested_list[i:i+prod], boyut[1:]) for i in range(boyut[0])
+        nest_list(unnested_list[i*prod:], boyut[1:]) for i in range(boyut[0])
     ]
 
 
