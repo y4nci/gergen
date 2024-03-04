@@ -1,5 +1,5 @@
 from cergen import *
-
+import numpy as np
 import math
 
 def test_fundamental_functionalities():
@@ -100,6 +100,38 @@ def test_fundamental_functionalities():
     print(nest_list([1, 2, 3, 4, 5, 6, 7, 8], (2, 2, 2)))
 
     print(get_dimensions_of_nested_list(nest_list([1, 2, 3, 4, 5, 6, 7, 8], (2, 2, 2))))
+
+    print()
+    print()
+    print()
+    print()
+
+    raw_arr = nest_list(list(range(1, 121)), (4, 3, 2, 5))
+    arr = np.array(raw_arr)
+    print(arr, np.sum(arr, axis=0), np.sum(arr, axis=1), np.sum(arr, axis=2), np.sum(arr, axis=3))
+
+    print("NOW GERGO")
+
+    gergo_from_arr = gergen(raw_arr)
+    print(gergo_from_arr, gergo_from_arr.topla(eksen=0), gergo_from_arr.topla(eksen=1), gergo_from_arr.topla(eksen=2), gergo_from_arr.topla(eksen=3))
+
+    print()
+
+    print()
+    print()
+    print()
+    print()
+
+    raw_arr = nest_list(list(range(1, 121)), (4, 3, 2, 5))
+    arr = np.array(raw_arr)
+    print(arr, np.average(arr, axis=0), np.average(arr, axis=1), np.average(arr, axis=2), np.average(arr, axis=3))
+
+    print("NOW GERGO")
+
+    gergo_from_arr = gergen(raw_arr)
+    print(gergo_from_arr, gergo_from_arr.ortalama(eksen=0), gergo_from_arr.ortalama(eksen=1), gergo_from_arr.ortalama(eksen=2), gergo_from_arr.ortalama(eksen=3))
+
+    print()
 
 
 

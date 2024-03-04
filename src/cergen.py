@@ -742,8 +742,6 @@ class gergen:
 
         return sum([abs(el) ** p for el in unnested_list]) ** (1 / p)
 
-        pass
-
     def listeye(self):
     #Converts the gergen object into a list or a nested list, depending on its dimensions.
         return self.__veri
@@ -772,18 +770,120 @@ class gergen:
 
     def ic_carpim(self, other):
     #Calculates the inner (dot) product of this gergen object with another.
+        """
+        ic_carpim is defined for 1D and 2D gergens. dis_carpim is only for 1D gergens. topla and ortalama applies for n-dimensional gergens.
+        see: https://odtuclass2023s.metu.edu.tr/mod/forum/discuss.php?d=757
+        """
         pass
 
     def dis_carpim(self, other):
     #Calculates the outer product of this gergen object with another.
+        """
+        ic_carpim is defined for 1D and 2D gergens. dis_carpim is only for 1D gergens. topla and ortalama applies for n-dimensional gergens.
+        see: https://odtuclass2023s.metu.edu.tr/mod/forum/discuss.php?d=757
+        """
         pass
     def topla(self, eksen=None):
     #Sums up the elements of the gergen object, optionally along a specified axis 'eksen'.
-        pass
+        """
+        Adds up values in gergen. If eksen is None, all elements are added. If eksen is not None, you can see the examples below:
+            Column-wise Addition (eksen=0): Elements over the vertical axis are added and returned as a gergen with the same size as the
+            number of columns.
+            Row-wise Addition (eksen=1): Elements over the horizontal axis are added and returned as a gergen with the same size as the
+            number of rows.
+        Error Handling:
+            If the specified eksen is not an integer or None, a TypeError is raised to indicate that eksen must be an integer or None.
+            When an eksen is provided, the function verifies that it is within the valid range of the data’s dimensions. If eksen exceeds
+            the dimensions, a ValueError is raised indicating that the specified eksen is out of bounds.
+        """
+
+        """
+        ic_carpim is defined for 1D and 2D gergens. dis_carpim is only for 1D gergens. topla and ortalama applies for n-dimensional gergens.
+        see: https://odtuclass2023s.metu.edu.tr/mod/forum/discuss.php?d=757
+        """
+
+        """
+        the eksen param is the same param as the axis param in numpy's sum function.
+        """
+
+        if eksen is not None:
+            if not isinstance(eksen, int):
+                raise TypeError('eksen should be an integer or None')
+            
+            if eksen < 0 or eksen >= len(self.__boyut):
+                raise ValueError('eksen is out of bounds')
+
+            boyut_list = list(self.__boyut)
+            boyut_list.pop(eksen)    
+            sum_gergen_boyut = tuple(boyut_list)
+
+            """
+            NOTE TO SELF about the algorithm:
+                what we're doing is essentially this:
+                    - flatten the list.
+                    - we will sum N elements in each iteration, where N is self.__boyut[eksen].
+                    - the N elements we will sum is going to be every Mth element, where M is the product of all elements in the list
+                      self.__boyut[eksen+1:]. If eksen is the last element, then M is 1.
+            """
+
+            N = self.__boyut[eksen]
+            M = 1
+
+            for el in self.__boyut[eksen+1:]:
+                M *= el
+
+            unnested_veri = unnest_list(self.__veri)
+
+            sum_gergen = []
+            summed_elem_counter = 0
+            total_elem_counter = 0
+            current_elem_sum = 0
+            offset = 0
+            offset_check_coefficient = 1
+
+            while total_elem_counter <= self.uzunluk() / N:
+                if total_elem_counter >= M * offset_check_coefficient:
+                    offset += M * (N - 1)
+                    offset_check_coefficient += 1
+
+                for i in range(total_elem_counter + offset, len(unnested_veri), M):
+                    current_elem_sum += unnested_veri[i]
+
+                    if summed_elem_counter == N - 1:
+                        sum_gergen.append(current_elem_sum)
+                        current_elem_sum = 0
+                        summed_elem_counter = 0
+                        break
+
+                    summed_elem_counter += 1
+                
+                total_elem_counter += 1
+
+            return gergen(nest_list(sum_gergen, sum_gergen_boyut))
+
+        return sum(unnest_list(self.__veri))
 
     def ortalama(self, eksen=None):
     #Calculates the average of the elements of the gergen object, optionally along a specified axis 'eksen'.
-        pass
+        """
+        Computes average (mean) of ele- ments in a tensor, with the flexibility to compute this average across different axes of the tensor
+        based on the eksen parameter (similar to topla).
+        When no eksen parameter is specified, the method computes the overall average of all elements within the tensor, treating it as a
+        flattened array. This is akin to calculating the mean value of a set of numbers.
+        Error Handling:
+            If the specified eksen is not an integer or None, a TypeError is raised to indicate that eksen must be an integer or None.
+            When an eksen is provided, the function verifies that it is within the valid range of the data’s dimensions. If eksen exceeds
+            the dimensions, a ValueError is raised indicating that the specified eksen is out of bounds.
+        """
+
+        """
+        ic_carpim is defined for 1D and 2D gergens. dis_carpim is only for 1D gergens. topla and ortalama applies for n-dimensional gergens.
+        see: https://odtuclass2023s.metu.edu.tr/mod/forum/discuss.php?d=757
+        """
+
+        divisor = self.uzunluk() if eksen is None else self.__boyut[eksen]
+
+        return self.topla(eksen) / divisor
 
 
     
