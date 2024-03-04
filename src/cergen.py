@@ -771,18 +771,81 @@ class gergen:
     def ic_carpim(self, other):
     #Calculates the inner (dot) product of this gergen object with another.
         """
-        ic_carpim is defined for 1D and 2D gergens. dis_carpim is only for 1D gergens. topla and ortalama applies for n-dimensional gergens.
+        ic_carpim is defined for 1D and 2D gergens. dis_carpim is only for 1D gergens. topla and ortalama applies for n-dimensional gergens
         see: https://odtuclass2023s.metu.edu.tr/mod/forum/discuss.php?d=757
+
+        Executes the inner prod- uct operation between two gergen objects. This method adheres to the mathematical definition of the inner
+        product, which requires both operands to be of the same di- mension.
+            For 1-D Tensors: both tensors must have the same dimensionality.
+            Matrix Product Representation: In cases where the gergen objects are treated as column vectors, the inner product can be
+            expressed through the matrix product x . y = xT y,
+            where xT denotes the transpose of vector x.
+            
+        Error Handling:
+            If either operand is not a gergen object, an error is raised to maintain type consistency, ensuring that the operation is
+            performed between two gergen instances.
+            For 1-D tensors, if the lengths of the vectors do not match, an error is thrown, emphasizing the requirement for equal
+            dimensionality in the inner product computation.
+            In the case of 2-D tensors, if the number of columns in the first matrix does not equal the number of rows in the second, an
+            error is raised, reflecting the necessity for compatible dimensions in matrix multiplication.
         """
-        pass
+
+        if not isinstance(other, gergen):
+            raise TypeError('Operands should be of type gergen')
+        
+        if len(self.__boyut) != len(other.__boyut):
+            raise ValueError('Operands should have the same shape')
+        
+        if len(self.__boyut) == 1:
+            if self.uzunluk() != other.uzunluk():
+                raise ValueError('Operands should have the same shape')
+
+            return sum([self.__veri[i] * other.__veri[i] for i in range(len(self.__veri))])
+        
+        if len(self.__boyut) == 2:
+            if self.__boyut[1] != other.__boyut[0]:
+                raise ValueError('Operands should have compatible dimensions')
+            
+            n = self.__boyut[0]
+            m = self.__boyut[1]
+            p = other.__boyut[1]
+
+            result = []
+
+            for i in range(n):
+                for j in range(p):
+                    result.append(sum([self.__veri[i][k] * other.__veri[k][j] for k in range(m)]))
+
+            return gergen(nest_list(result, (n, p)))
+        
+        raise ValueError('ic_carpim is only defined for 1D and 2D gergens')
+
 
     def dis_carpim(self, other):
     #Calculates the outer product of this gergen object with another.
         """
-        ic_carpim is defined for 1D and 2D gergens. dis_carpim is only for 1D gergens. topla and ortalama applies for n-dimensional gergens.
+        ic_carpim is defined for 1D and 2D gergens. dis_carpim is only for 1D gergens. topla and ortalama applies for n-dimensional gergens
         see: https://odtuclass2023s.metu.edu.tr/mod/forum/discuss.php?d=757
         """
-        pass
+            
+        if not isinstance(other, gergen):
+            raise TypeError('Operands should be of type gergen')
+
+        if len(self.__boyut) != 1 or len(other.__boyut) != 1:
+            raise ValueError('Operands should be 1D gergens')
+        
+        if self.uzunluk() != other.uzunluk():
+            raise ValueError('Operands should have the same shape')
+        
+        result = []
+
+        for i in range(self.uzunluk()):
+            for j in range(other.uzunluk()):
+                result.append(self.__veri[i] * other.__veri[j])
+
+        return gergen(nest_list(result, (self.uzunluk(), other.uzunluk())))
+
+
     def topla(self, eksen=None):
     #Sums up the elements of the gergen object, optionally along a specified axis 'eksen'.
         """

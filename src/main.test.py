@@ -132,8 +132,24 @@ def test_fundamental_functionalities():
     print(gergo_from_arr, gergo_from_arr.ortalama(eksen=0), gergo_from_arr.ortalama(eksen=1), gergo_from_arr.ortalama(eksen=2), gergo_from_arr.ortalama(eksen=3))
 
     print()
+    print()
+    print()
+    print()
 
+    left_carpim = gergen([[1, 2], [3, 4]])
+    right_carpim = gergen([[5, 6], [7, 8]])
 
+    print(left_carpim.ic_carpim(right_carpim))
+
+    left_carpim = gergen([[1, 2, 3, 4]])
+    right_carpim = gergen([[5], [6], [7], [8]])
+
+    print(left_carpim.ic_carpim(right_carpim))
+
+    left_carpim = gergen([1, 2, 3, 4])
+    right_carpim = gergen([5, 6, 7, 8])
+
+    print(left_carpim.dis_carpim(right_carpim))
 
 
 def test():
