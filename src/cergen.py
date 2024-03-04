@@ -724,15 +724,11 @@ class gergen:
 
     def L1(self):
     # Calculates and returns the L1 norm
-        unnested_list = unnest_list(self.__veri)
-
-        return sum([abs(el) for el in unnested_list])
+        return self.Lp(1)
 
     def L2(self):
     # Calculates and returns the L2 norm
-        unnested_list = unnest_list(self.__veri)
-
-        return math.sqrt(sum([el ** 2 for el in unnested_list]))
+        return self.Lp(2)
 
     def Lp(self, p):
     # Calculates and returns the Lp norm, where p should be positive integer
