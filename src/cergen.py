@@ -5,6 +5,45 @@ from typing import Union
 class gergen:
     pass
 
+
+######################################################################
+#-------------------------- HELPER CLASSES --------------------------#
+######################################################################
+class TupleIndexedList:
+    def __init__(self, tuple_indexed_list: list):
+        self.tuple_indexed_list = tuple_indexed_list
+
+    def __getitem__(self, index):
+        if type(index) == int:
+            return self.tuple_indexed_list[index]
+        
+        if type(index) == tuple:
+            val_to_return = self.tuple_indexed_list
+
+            while len(index) > 0:
+                val_to_return = val_to_return[index[0]]
+                index = index[1:]
+
+            return val_to_return
+
+    def __setitem__(self, index, value):
+        if type(index) == int:
+            self.tuple_indexed_list[index] = value
+            return
+        
+        if type(index) == tuple:
+            val_to_return = self.tuple_indexed_list
+
+            while len(index) > 1:
+                val_to_return = val_to_return[index[0]]
+                index = index[1:]
+
+            val_to_return[index[0]] = value
+
+    def to_list(self):
+        return self.tuple_indexed_list
+
+
 ######################################################################
 #------------------------- HELPER FUNCTIONS -------------------------#
 ######################################################################
@@ -23,20 +62,68 @@ def create_nested_list(boyut: tuple, aralik_list: list, current_dimension_idx: i
     return [create_nested_list(boyut, aralik_list, current_dimension_idx + 1, use_integer) for _ in range(current_dimension)]
 
 
+def create_nested_list_with_fill(boyut: tuple, current_dimension_idx: int, fill) -> list:
+    """
+    I could've modified the function above to accept another parameter, but I didn't want to interfere with the random number generation
+    """
+    current_dimension = boyut[current_dimension_idx]
+
+    if current_dimension == 0:
+        raise ValueError('Dimension should be greater than 0')
+
+    if current_dimension_idx == len(boyut) - 1:
+        return [
+            fill
+                for _ in range(current_dimension)
+        ]
+    
+    return [create_nested_list_with_fill(boyut, current_dimension_idx + 1, fill) for _ in range(current_dimension)]
+
+
 def get_transpose_of_nested_list(nested_list: list | int | float) -> list | int | float:
     if (
         type(nested_list) == int or
-        type(nested_list) == float or
-        type(nested_list[0]) == int or
-        type(nested_list[0]) == float
+        type(nested_list) == float
     ):
         return nested_list
     
-    return [
-        get_transpose_of_nested_list(
-            [nested_list[i][j] for i in range(len(nested_list))]
-        ) for j in range(len(nested_list[0]))
-    ]
+    original_shape = get_dimensions_of_nested_list(nested_list)
+    new_shape = original_shape[::-1]
+
+    transposed_nested_list = create_nested_list_with_fill(new_shape, 0, math.inf)
+
+    tuple_indexed_original = TupleIndexedList(nested_list)
+    tuple_indexed_transposed = TupleIndexedList(transposed_nested_list)
+
+    """
+    this digital clock variable is used to keep track of the indexes. it is a list of 0s with the same length as the original shape, but
+    every digit at index i is reset to 0 when the index i is equal to the corresponding dimension of the original shape. this is used to
+    keep track of the indexes when iterating over the original nested list.
+    """
+    digital_clock = [0 for _ in range(len(original_shape))]
+
+    while True:
+        tuple_indexed_transposed[tuple(digital_clock)[::-1]] = tuple_indexed_original[tuple(digital_clock)]
+
+        """
+        this last_clock_state variable is used to keep track of the last state of the digital clock. it is used to break the loop when the
+        digital clock has made a full cycle.
+        """
+        last_clock_state = digital_clock.copy()
+
+        digital_clock[-1] += 1
+
+        for i in range(len(digital_clock) - 1, -1, -1):
+            if digital_clock[i] == original_shape[i]:
+                digital_clock[i] = 0
+                digital_clock[i - 1] += 1
+            else:
+                break
+
+        if digital_clock[0] < last_clock_state[0]:
+            break
+
+    return tuple_indexed_transposed.to_list()
 
 
 def get_dimensions_of_nested_list(nested_list: list) -> tuple:
@@ -618,17 +705,9 @@ class gergen:
         if self.__veri is None:
             raise ValueError('Tensor is empty')
         
-        if type(index) == int:
-            return gergen(self.__veri[index])
-        
-        if type(index) == tuple:
-            val_to_return = self.__veri
+        tuple_indexed = TupleIndexedList(self.__veri)
 
-            while len(index) > 0:
-                val_to_return = val_to_return[index[0]]
-                index = index[1:]
-
-            return gergen(val_to_return)
+        return gergen(tuple_indexed[index])
 
     def __str__(self):
         #Generates a string representation
