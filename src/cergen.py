@@ -1,6 +1,9 @@
-import random
 import math
+import numpy as np
+import random
+import time
 from typing import Union
+
 
 class gergen:
     pass
@@ -184,63 +187,6 @@ def map_nested_list(nested_list: list, map_fn) -> list:
     return [
         map_nested_list(el, map_fn) for el in nested_list
     ]
-
-
-######################################################################
-#-------------------- FUNDAMENTAL FUNCTIONALITIES -------------------#
-######################################################################
-def cekirdek(sayi: int) -> None:
-    """
-    Sets the seed for random number generation to ensure reproducibility of results. Before generating random numbers (for instance,
-    when initializing tensors with random values), you can call this function to set the seed.
-    """
-    random.seed(sayi)
-
-
-def rastgele_dogal(boyut: tuple, aralik: tuple = (0, 100), dagilim='uniform') -> gergen:
-    """
-    Generates a gergen of specified dimensions with random integer values. The boyut parameter is a tuple specifying the dimensions of
-    the gergen to be generated. The aralik parameter is an optional tuple (min, max) specifying the range of random values, with a 
-    default range of (0, 100). The dagilim parameter specifies the distribution of random values, with ‘uniform’ as the default
-    distribution. Possible values for dagilim include ‘uniform’ for a uniform distribution. You should raise ValueError if dagilim
-    parameter is given differently.
-    """
-
-    if dagilim != 'uniform':
-        raise ValueError('dagilim parameter should be uniform')
-    
-    aralik_list: list = list(aralik)
-
-    # if boyut is 0, then we should return a scalar.
-    if len(boyut) == 0:
-        random_scalar = random.randint(*aralik_list)
-
-        return gergen(random_scalar)
-
-    return gergen(create_nested_list(boyut, aralik_list, 0, True))
-
-
-def rastgele_gercek(boyut: tuple, aralik: tuple = (0.0,1.0), dagilim = None) -> gergen:
-    """
-    Generates a gergen of specified dimensions with random floating-point values. The boyut parameter is a tuple specifying the dimensions
-    of the gergen to be generated. The aralik parameter is an optional tuple (min, max) specifying the range of random values, with a
-    default range of (0.0,1.0). The dagilim parameter specifies the distribution of random values, with ‘uniform’ as the default
-    distribution. Possible values for dagilim include ‘uniform’ for a uniform distribution. You should raise ValueError if dagilim
-    parameter is given differently.
-    """
-
-    if dagilim != 'uniform':
-        raise ValueError('dagilim parameter should be uniform')
-    
-    aralik_list: list = list(aralik)
-
-    # if boyut is 0, then we should return a scalar.
-    if len(boyut) == 0:
-        random_scalar = random.uniform(*aralik_list)
-
-        return gergen(random_scalar)
-    
-    return gergen(create_nested_list(boyut, aralik_list, 0, False))
 
 
 ######################################################################
@@ -1026,10 +972,177 @@ class gergen:
         divisor = self.uzunluk() if eksen is None else self.__boyut[eksen]
 
         return self.topla(eksen) / divisor
-
-
     
 
+######################################################################
+#-------------------- FUNDAMENTAL FUNCTIONALITIES -------------------#
+######################################################################
+def cekirdek(sayi: int) -> None:
+    """
+    Sets the seed for random number generation to ensure reproducibility of results. Before generating random numbers (for instance,
+    when initializing tensors with random values), you can call this function to set the seed.
+    """
+    random.seed(sayi)
+
+
+def rastgele_dogal(boyut: tuple, aralik: tuple = (0, 100), dagilim='uniform') -> gergen:
+    """
+    Generates a gergen of specified dimensions with random integer values. The boyut parameter is a tuple specifying the dimensions of
+    the gergen to be generated. The aralik parameter is an optional tuple (min, max) specifying the range of random values, with a 
+    default range of (0, 100). The dagilim parameter specifies the distribution of random values, with ‘uniform’ as the default
+    distribution. Possible values for dagilim include ‘uniform’ for a uniform distribution. You should raise ValueError if dagilim
+    parameter is given differently.
+    """
+
+    if dagilim != 'uniform':
+        raise ValueError('dagilim parameter should be uniform')
+    
+    aralik_list: list = list(aralik)
+
+    # if boyut is 0, then we should return a scalar.
+    if len(boyut) == 0:
+        random_scalar = random.randint(*aralik_list)
+
+        return gergen(random_scalar)
+
+    return gergen(create_nested_list(boyut, aralik_list, 0, True))
+
+
+def rastgele_gercek(boyut: tuple, aralik: tuple = (0.0,1.0), dagilim = None) -> gergen:
+    """
+    Generates a gergen of specified dimensions with random floating-point values. The boyut parameter is a tuple specifying the dimensions
+    of the gergen to be generated. The aralik parameter is an optional tuple (min, max) specifying the range of random values, with a
+    default range of (0.0,1.0). The dagilim parameter specifies the distribution of random values, with ‘uniform’ as the default
+    distribution. Possible values for dagilim include ‘uniform’ for a uniform distribution. You should raise ValueError if dagilim
+    parameter is given differently.
+    """
+
+    if dagilim != 'uniform' and dagilim is not None:
+        raise ValueError('dagilim parameter should be uniform')
+    
+    aralik_list: list = list(aralik)
+
+    # if boyut is 0, then we should return a scalar.
+    if len(boyut) == 0:
+        random_scalar = random.uniform(*aralik_list)
+
+        return gergen(random_scalar)
+    
+    return gergen(create_nested_list(boyut, aralik_list, 0, False))
+
+
+######################################################################
+#--------------------------- TEST EXAMPLES --------------------------#
+######################################################################
+epsilon = 1e-5
+
+
+def example_1():
+    """
+    Using rastgele gercek, generate two gergen objects A and B with shapes (64, 64) and calculate:
+
+    A^T B
+
+    Then, calculate the same function with NumPy and report the time and difference.
+    """
+    #Example 1
+    boyut = (64,64)
+    g1 = rastgele_gercek(boyut)
+    g2 = rastgele_gercek(boyut)
+
+    np_arr1 = np.array(g1.listeye())
+    np_arr2 = np.array(g2.listeye())
+
+    start = time.time()
+    
+    calculated = g1.ic_carpim(g2)
+    
+    end = time.time()
+
+    start_np = time.time()
+    
+    actual = np.dot(np_arr1, np_arr2)
+
+    end_np = time.time()
+
+    #Compare if the two results are the same
+    print("Are the results the same?:", np.allclose(calculated.listeye(), actual, epsilon, epsilon))
+
+    #Report the time difference
+    print("Time taken for gergen:", end-start)
+    print("Time taken for numpy:", end_np-start_np)
+
+
+def example_2():
+    """
+    Using rastgele gercek, generate three gergens A, B and C with shapes (4,16,16,16) and report the time and result with their NumPy
+    equivalent:
+    (A x B + C x A + B x C).ortalama()
+    """
+    #Example 2
+    boyut = (4, 16, 16, 16)
+    g1 = rastgele_gercek(boyut)
+    g2 = rastgele_gercek(boyut)
+    g3 = rastgele_gercek(boyut)
+
+    np_arr1 = np.array(g1.listeye())
+    np_arr2 = np.array(g2.listeye())
+    np_arr3 = np.array(g3.listeye())
+
+    start = time.time()
+    
+    calculated = g1 * g2 + g3 * g1 + g2 * g3
+    
+    end = time.time()
+
+    start_np = time.time()
+    
+    actual = np_arr1 * np_arr2 + np_arr3 * np_arr1 + np_arr2 * np_arr3
+
+    end_np = time.time()
+
+    #Compare if the two results are the same
+    print("Are the results the same?:", np.allclose(calculated.listeye(), actual, epsilon, epsilon))
+
+    #Report the time difference
+    print("Time taken for gergen:", end-start)
+    print("Time taken for numpy:", end_np-start_np)
+
+
+def example_3():
+    """
+    Using rastgele gercek, generate two gergen’s A and B with shapes (3,64,64) and report
+    the time and result with their NumPy equivalent:
+    ln ((sin(A) + cos(B))**2 ) / 8
+    """
+    #Example 3
+
+    boyut = (3, 64, 64)
+
+    g1 = rastgele_gercek(boyut)
+    g2 = rastgele_gercek(boyut)
+
+    np_arr1 = np.array(g1.listeye())
+    np_arr2 = np.array(g2.listeye())
+
+    start = time.time()
+
+    calculated = ((g1.sin() + g2.cos()) * (g1.sin() + g2.cos())).ln() / 8
+
+    end = time.time()
+
+    start_np = time.time()
+
+    actual = np.log((np.sin(np_arr1) + np.cos(np_arr2))**2) / 8
+
+    end_np = time.time()
+
+    #Compare if the two results are the same
+    print("Are the results the same?:", np.allclose(calculated.listeye(), actual, epsilon, epsilon))
+
+    #Report the time difference
+    print("Time taken for gergen:", end-start)
+    print("Time taken for numpy:", end_np-start_np)
 
 
 
