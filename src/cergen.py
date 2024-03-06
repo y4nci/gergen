@@ -2,6 +2,7 @@ import math
 import numpy as np
 import random
 import time
+
 from typing import Union
 
 
@@ -151,7 +152,7 @@ def get_transpose_of_nested_list(nested_list: list | int | float) -> list | int 
         """
         this last_clock_state variable is used to keep track of the last state of the digital clock. it is used to break the loop when the
         digital clock has made a full cycle. in the example above, the last state of the digital clock will be [3, 2, 1, 4]. when the
-        digital clock is incremented after this state, it will be reset to [0, 0, 0, 1] and the loop will be broken.
+        digital clock is incremented after this state, it will be reset to [0, 0, 0, 0] and the loop will be broken.
         """
         last_clock_state = digital_clock.copy()
 
@@ -375,12 +376,11 @@ class Addition(Operation):
 class Subtraction(Operation):
     def subtractor(self, left: Union[list, int, float], right: Union[list, int, float]) -> Union[list, int, float]:
         """
-        For gergen-to-gergen addition, it iterates over corresponding el- ements from both instances, adding them together. If one
-        operand is a scalar, this value is added to every element within the gergen instance. The method performs a dimensionality
-        check when both operands are gergen instances to ensure their shapes are compatible for element-wise operations. If the
-        dimensions do not align, a ValueError is raised, indicating a mismatch in dimensions. Additionally, if the other parameter is
-        of an unsupported type, a TypeError is raised to maintain type safety. The outcome of the addition is should be returned in a 
-        new gergen object.
+        This method en- ables element-wise subtraction, either between two gergen instances or between a gergen and a scalar (int/float).
+        For gergen-to-gergen subtraction, corresponding elements from each instance are subtracted. When operating with a scalar, the
+        scalar value is subtracted from each element of the gergen instance. The method ensures that dimensions are compatible when both
+        operands are gergen instances, raising a ValueError if there is a mismatch. If the type of other is not supported, a TypeError is
+        raised. The outcome of the subtraction is should be returned in a new gergen ob- ject.
         """
         if (
             isinstance(left, (list)) and
@@ -560,12 +560,16 @@ class Multiplication(Operation):
 class Division(Operation):
     def divisor(self, left, right):
         """
-        This method fa- cilitates the multiplication of the gergen either with another gergen instance for element-wise multiplication,
-        or with a scalar (int/float), yielding a new gergen ob- ject as the result. The other parameter is permitted to be a gergen, an
-        integer, or a floating-point number. Error handling is incorporated to manage cases where the other parameter is neither a gergen
-        object nor a numerical scalar. If the dimen- sions of two gergen instances do not align for element-wise multiplication, or if an
-        incompatible type is provided for other, a TypeError or ValueError is raised.
+        This method implements division for the gergen, facilitating element-wise division by a scalar (an integer or a float), and
+        encapsulates the result in a new gergen instance. True divi- sion is employed, ensuring that the result is always a floating-point
+        number, consistent with Python 3.x division behavior, even if both operands are integers. Error handling mechanism ahould check
+        potential issues: if other is zero, a ZeroDivisionError is raised to prevent division by zero. Additionally, if other is not a
+        scalar type (int or float), a TypeError is raised to enforce the type requirement for the scalar divisor.
         """
+        if right == 0:
+            raise ZeroDivisionError('Division by zero is not allowed')
+
+
         if (
             isinstance(left, (list)) and
             isinstance(right, (list))
@@ -750,6 +754,38 @@ class gergen:
         The operation is element-wise.
         """
         return self.__subtractor(self, other)
+
+    def __radd__(self, other: Union['gergen', int, float]) -> 'gergen':
+        """
+        Defines the addition operation for gergen objects when the left operand is a scalar.
+        Called when a scalar is added to a gergen object, using the '+' operator.
+        The operation is element-wise.
+        """
+        return self.__adder(other, self)
+    
+    def __rsub__(self, other: Union['gergen', int, float]) -> 'gergen':
+        """
+        Subtraction operation for gergen objects when the left operand is a scalar.
+        Called when a scalar is subtracted from a gergen object, using the '-' operator.
+        The operation is element-wise.
+        """
+        return self.__subtractor(other, self)
+    
+    def __rmul__(self, other: Union['gergen', int, float]) -> 'gergen':
+        """
+        Multiplication operation for gergen objects when the left operand is a scalar.
+        Called when a scalar is multiplied by a gergen object, using the '*' operator.
+        The operation is element-wise.
+        """
+        return self.__multiplier(other, self)
+    
+    def __rtruediv__(self, other: Union['gergen', int, float]) -> 'gergen':
+        """
+        Division operation for gergen objects when the left operand is a scalar.
+        Called when a scalar is divided by a gergen object, using the '/' operator.
+        The operation is element-wise.
+        """
+        return self.__divider(other, self)
 
     def uzunluk(self):
     # Returns the total number of elements in the gergen
