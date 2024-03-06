@@ -45,6 +45,39 @@ class TupleIndexedList:
 
     def to_list(self):
         return self.tuple_indexed_list
+    
+
+epsilon = 1e-5
+
+
+class TestResult:
+    def __init__(self, test_name: str, durations: list, results: list):
+        self.test_name = test_name
+        self.durations = durations
+        self.results = results
+        self.passed = self.did_pass()
+
+    def did_pass(self):
+        return np.allclose(self.results[0], self.results[1], epsilon, epsilon)
+
+    def __str__(self):
+        str_repr = ""
+
+        str_repr += ("Are the results the same?: " + str(self.passed )+ "\n")
+
+        #Report the time difference
+        str_repr += ("Time taken for gergen: " + str(self.durations[0]) + "\n")
+        str_repr += ("Time taken for numpy: " + str(self.durations[1]))
+        
+        return str_repr
+    
+    def to_obj(self):
+        return {
+            "test_name": self.test_name,
+            "durations": self.durations,
+            "passed": self.passed,
+            "results": self.results
+        }
 
 
 ######################################################################
@@ -1034,7 +1067,6 @@ def rastgele_gercek(boyut: tuple, aralik: tuple = (0.0,1.0), dagilim = None) -> 
 ######################################################################
 #--------------------------- TEST EXAMPLES --------------------------#
 ######################################################################
-epsilon = 1e-5
 
 
 def example_1():
@@ -1065,12 +1097,15 @@ def example_1():
 
     end_np = time.time()
 
-    #Compare if the two results are the same
-    print("Are the results the same?:", np.allclose(calculated.listeye(), actual, epsilon, epsilon))
+    test_results = TestResult(
+        durations=(end-start, end_np-start_np),
+        test_name="example_1",
+        results=(calculated.listeye(), actual),
+    )
 
-    #Report the time difference
-    print("Time taken for gergen:", end-start)
-    print("Time taken for numpy:", end_np-start_np)
+    print(test_results)
+
+    return test_results
 
 
 def example_2():
@@ -1101,12 +1136,16 @@ def example_2():
 
     end_np = time.time()
 
-    #Compare if the two results are the same
-    print("Are the results the same?:", np.allclose(calculated, actual, epsilon, epsilon))
+    test_results = TestResult(
+        durations=(end-start, end_np-start_np),
+        test_name="example_2",
+        results=(calculated, actual),
+    )
 
-    #Report the time difference
-    print("Time taken for gergen:", end-start)
-    print("Time taken for numpy:", end_np-start_np)
+    print(test_results)
+
+    return test_results
+    
 
 
 def example_3():
@@ -1127,7 +1166,7 @@ def example_3():
 
     start = time.time()
 
-    calculated = ((g1.sin() + g2.cos()) * (g1.sin() + g2.cos())).ln() / 8
+    calculated = ((g1.sin() + g2.cos()).us(2)).ln() / 8
 
     end = time.time()
 
@@ -1137,19 +1176,15 @@ def example_3():
 
     end_np = time.time()
 
-    #Compare if the two results are the same
-    print("Are the results the same?:", np.allclose(calculated.listeye(), actual, epsilon, epsilon))
+    test_results = TestResult(
+        durations=(end-start, end_np-start_np),
+        results=(calculated.listeye(), actual),
+        test_name="example_3"
+    )
 
-    #Report the time difference
-    print("Time taken for gergen:", end-start)
-    print("Time taken for numpy:", end_np-start_np)
+    print(test_results)
 
-
-
-
-
-
-
+    return test_results
 
 
 
