@@ -1091,18 +1091,18 @@ def example_2():
 
     start = time.time()
     
-    calculated = g1 * g2 + g3 * g1 + g2 * g3
+    calculated = (g1 * g2 + g3 * g1 + g2 * g3).ortalama()
     
     end = time.time()
 
     start_np = time.time()
     
-    actual = np_arr1 * np_arr2 + np_arr3 * np_arr1 + np_arr2 * np_arr3
+    actual = np.average(np_arr1 * np_arr2 + np_arr3 * np_arr1 + np_arr2 * np_arr3)
 
     end_np = time.time()
 
     #Compare if the two results are the same
-    print("Are the results the same?:", np.allclose(calculated.listeye(), actual, epsilon, epsilon))
+    print("Are the results the same?:", np.allclose(calculated, actual, epsilon, epsilon))
 
     #Report the time difference
     print("Time taken for gergen:", end-start)
