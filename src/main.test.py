@@ -129,7 +129,7 @@ def test():
             total_passed += 1
 
     print("Average time difference: ", total_time_diff / (total_tests * 6))
-    print("Success: ", total_passed * 100 / (total_tests * 6) + "%")
+    print("Success: ", total_passed * 100 / (total_tests * 6), "%")
 
     if len(failed_cases) > 0:
         print("Failed cases: ", len(failed_cases))
