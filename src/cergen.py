@@ -135,6 +135,13 @@ def get_transpose_of_nested_list(nested_list: list | int | float) -> list | int 
     this digital clock variable is used to keep track of the indexes. it is a list of 0s with the same length as the original shape, but
     every digit at index i is reset to 0 when the index i is equal to the corresponding dimension of the original shape. this is used to
     keep track of the indexes when iterating over the original nested list.
+
+    let's see an example:
+
+    if the original dimensions are (4, 3, 2, 5), the digital clock will start with value [0, 0, 0, 0]. at every iteration of the loop below
+    (which is used to iterate over the original nested list), the digital clock will be incremented by 1. when the first digit of the 
+    digital clock is equal to 4, it is reset to 0 and the second digit is incremented by 1. this process continues until the digital clock
+    has made a full cycle, at which point the loop is broken.
     """
     digital_clock = [0 for _ in range(len(original_shape))]
 
@@ -143,7 +150,8 @@ def get_transpose_of_nested_list(nested_list: list | int | float) -> list | int 
 
         """
         this last_clock_state variable is used to keep track of the last state of the digital clock. it is used to break the loop when the
-        digital clock has made a full cycle.
+        digital clock has made a full cycle. in the example above, the last state of the digital clock will be [3, 2, 1, 4]. when the
+        digital clock is incremented after this state, it will be reset to [0, 0, 0, 1] and the loop will be broken.
         """
         last_clock_state = digital_clock.copy()
 
