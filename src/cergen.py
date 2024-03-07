@@ -969,6 +969,8 @@ class gergen:
         the eksen param is the same param as the axis param in numpy's sum function.
         """
 
+        unnested_veri = unnest_list(self.__veri)
+
         if eksen is not None:
             if not isinstance(eksen, int):
                 raise TypeError('eksen should be an integer or None')
@@ -978,11 +980,13 @@ class gergen:
 
             boyut_list = list(self.__boyut)
             boyut_list.pop(eksen)    
-            sum_gergen_boyut = tuple(boyut_list)
+
+            resulting_gergen_veri = []
+            resulting_gergen_boyut = tuple(boyut_list)
 
             """
-            NOTE TO SELF about the algorithm:
-                what we're doing is essentially this:
+            about the algorithm:
+                what the algorithm does is:
                     - flatten the list.
                     - we will sum N elements in each iteration, where N is self.__boyut[eksen].
                     - the N elements we will sum is going to be every Mth element, where M is the product of all elements in the list
@@ -995,9 +999,6 @@ class gergen:
             for el in self.__boyut[eksen+1:]:
                 M *= el
 
-            unnested_veri = unnest_list(self.__veri)
-
-            sum_gergen = []
             summed_elem_counter = 0
             total_elem_counter = 0
             current_elem_sum = 0
@@ -1013,7 +1014,7 @@ class gergen:
                     current_elem_sum += unnested_veri[i]
 
                     if summed_elem_counter == N - 1:
-                        sum_gergen.append(current_elem_sum)
+                        resulting_gergen_veri.append(current_elem_sum)
                         current_elem_sum = 0
                         summed_elem_counter = 0
                         break
@@ -1022,9 +1023,9 @@ class gergen:
                 
                 total_elem_counter += 1
 
-            return gergen(nest_list(sum_gergen, sum_gergen_boyut))
+            return gergen(nest_list(resulting_gergen_veri, resulting_gergen_boyut))
 
-        return sum(unnest_list(self.__veri))
+        return sum(unnested_veri)
 
     def ortalama(self, eksen=None):
     #Calculates the average of the elements of the gergen object, optionally along a specified axis 'eksen'.
