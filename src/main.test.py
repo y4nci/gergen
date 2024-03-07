@@ -170,13 +170,14 @@ def test():
         results.append(total_random_example_int_arg().to_obj())
        
 
-    total_time_diff = 0
+    total_times = [[], []]
     total_passed = 0
 
     failed_cases = []
 
     for i in range(total_tests * tests_per_run):
-        total_time_diff += results[i]["durations"][0] - results[i]["durations"][1]
+        total_times[0].append(results[i]["durations"][0])
+        total_times[1].append(results[i]["durations"][1])
 
         if not results[i]["passed"]:
             failed_cases.append(str(results[i]["results"]))
@@ -186,7 +187,8 @@ def test():
         else:
             total_passed += 1
 
-    print("Average time difference: ", total_time_diff / (total_tests * tests_per_run))
+    print("Average time difference: ", np.mean(np.array(total_times[0]) - np.array(total_times[1])))
+    print("Average time comparison: ", np.mean(np.array(total_times[0]) / np.array(total_times[1])))
     print("Success: ", total_passed * 100 / (total_tests * tests_per_run), "%")
 
     if len(failed_cases) > 0:
