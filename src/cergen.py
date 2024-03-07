@@ -141,20 +141,17 @@ def get_transpose_of_nested_list(nested_list: list | int | float) -> list | int 
 
     if the original dimensions are (4, 3, 2, 5), the digital clock will start with value [0, 0, 0, 0]. at every iteration of the loop below
     (which is used to iterate over the original nested list), the digital clock will be incremented by 1. when the first digit of the 
-    digital clock is equal to 4, it is reset to 0 and the second digit is incremented by 1. this process continues until the digital clock
-    has made a full cycle, at which point the loop is broken.
+    digital clock is equal to 4, it is reset to 0 and the second digit is incremented by 1. this process continues until the total number
+    of iterations is equal to the total number of elements in the original nested list.
     """
     digital_clock = [0 for _ in range(len(original_shape))]
 
+    element_count = len(unnest_list(nested_list))
+
+    counter = 0
+
     while True:
         tuple_indexed_transposed[tuple(digital_clock)[::-1]] = tuple_indexed_original[tuple(digital_clock)]
-
-        """
-        this last_clock_state variable is used to keep track of the last state of the digital clock. it is used to break the loop when the
-        digital clock has made a full cycle. in the example above, the last state of the digital clock will be [3, 2, 1, 4]. when the
-        digital clock is incremented after this state, it will be reset to [0, 0, 0, 0] and the loop will be broken.
-        """
-        last_clock_state = digital_clock.copy()
 
         digital_clock[-1] += 1
 
@@ -164,8 +161,10 @@ def get_transpose_of_nested_list(nested_list: list | int | float) -> list | int 
                 digital_clock[i - 1] += 1
             else:
                 break
+        
+        counter += 1
 
-        if digital_clock[0] < last_clock_state[0]:
+        if counter == element_count:
             break
 
     return tuple_indexed_transposed.to_list()
@@ -568,7 +567,6 @@ class Division(Operation):
         """
         if right == 0:
             raise ZeroDivisionError('Division by zero is not allowed')
-
 
         if (
             isinstance(left, (list)) and
