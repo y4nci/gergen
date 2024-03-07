@@ -5,7 +5,7 @@ import math
 
 def total_random_example_no_arg():
     # random dimension
-    dimension = random.randint(0, 6)
+    dimension = random.randint(0, 8)
 
     # random boyut
     boyut = tuple([random.randint(1, 10) for _ in range(dimension)]) if dimension != 0 else ()
@@ -54,7 +54,7 @@ def total_random_example_int_arg():
     dimension = random.randint(0, 5)
 
     # random boyut
-    boyut = tuple([random.randint(1, 6) for _ in range(dimension)]) if dimension != 0 else ()
+    boyut = tuple([random.randint(1, 10) for _ in range(dimension)]) if dimension != 0 else ()
 
     veri1 = rastgele_gercek(boyut)
 
@@ -157,16 +157,25 @@ def test():
     tests_per_run = 9
         
     for i in range(total_tests):
+        print("#", i * tests_per_run + 1)
         results.append(example_1().to_obj())
+        print("#", i * tests_per_run + 2)
         results.append(example_2().to_obj())
-        results.append(example_3().to_obj())
-
-        results.append(example_1().to_obj())
-        results.append(example_2().to_obj())
+        print("#", i * tests_per_run + 3)
         results.append(example_3().to_obj())
         
+        print("#", i * tests_per_run + 4)
         results.append(total_random_example_no_arg().to_obj())
+        print("#", i * tests_per_run + 5)
         results.append(total_random_example_gergo_arg().to_obj())
+        print("#", i * tests_per_run + 6)
+        results.append(total_random_example_int_arg().to_obj())
+
+        print("#", i * tests_per_run + 7)
+        results.append(total_random_example_no_arg().to_obj())
+        print("#", i * tests_per_run + 8)
+        results.append(total_random_example_gergo_arg().to_obj())
+        print("#", i * tests_per_run + 9)
         results.append(total_random_example_int_arg().to_obj())
        
 
