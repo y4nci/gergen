@@ -353,7 +353,7 @@ class Addition(Operation):
                 isinstance(operands[0], (gergen)) and
                 isinstance(operands[1], (gergen))
             ):
-                if operands[0].boyut() != operands[1].boyut():
+                if operands[0].boyut() != operands[1].boyut() and operands[0].boyut() != () and operands[1].boyut() != ():
                     raise ValueError('Operands should have the same shape')
 
             #! WE WILL NOT USE THE GERGEN OBJECT IN adder FUNCTION. INSTEAD, WE WILL PASS THE listeye() OF THE GERGEN OBJECT.
@@ -445,7 +445,7 @@ class Subtraction(Operation):
                 isinstance(operands[0], (gergen)) and
                 isinstance(operands[1], (gergen))
             ):
-                if operands[0].boyut() != operands[1].boyut():
+                if operands[0].boyut() != operands[1].boyut() and operands[0].boyut() != () and operands[1].boyut() != ():
                     raise ValueError('Operands should have the same shape')
 
             #! WE WILL NOT USE THE GERGEN OBJECT IN adder FUNCTION. INSTEAD, WE WILL PASS THE listeye() OF THE GERGEN OBJECT.
@@ -537,7 +537,7 @@ class Multiplication(Operation):
                 isinstance(operands[0], (gergen)) and
                 isinstance(operands[1], (gergen))
             ):
-                if operands[0].boyut() != operands[1].boyut():
+                if operands[0].boyut() != operands[1].boyut() and operands[0].boyut() != () and operands[1].boyut() != ():
                     raise ValueError('Operands should have the same shape')
 
             #! WE WILL NOT USE THE GERGEN OBJECT IN adder FUNCTION. INSTEAD, WE WILL PASS THE listeye() OF THE GERGEN OBJECT.
@@ -632,7 +632,7 @@ class Division(Operation):
                 isinstance(operands[0], (gergen)) and
                 isinstance(operands[1], (gergen))
             ):
-                if operands[0].boyut() != operands[1].boyut():
+                if operands[0].boyut() != operands[1].boyut() and operands[0].boyut() != () and operands[1].boyut() != ():
                     raise ValueError('Operands should have the same shape')
 
             #! WE WILL NOT USE THE GERGEN OBJECT IN adder FUNCTION. INSTEAD, WE WILL PASS THE listeye() OF THE GERGEN OBJECT.
