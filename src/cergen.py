@@ -84,37 +84,37 @@ class TestResult:
 ######################################################################
 #------------------------- HELPER FUNCTIONS -------------------------#
 ######################################################################
-def create_nested_list(boyut: tuple, aralik_list: list, current_dimension_idx: int, use_integer: bool) -> list:
-    current_dimension = boyut[current_dimension_idx]
+def create_nested_list(boyut: tuple, aralik_list: list, use_integer: bool) -> list:
+    if len(boyut) == 0:
+        return random.randint(*aralik_list) if use_integer else random.uniform(*aralik_list)
 
-    if current_dimension == 0:
-        raise ValueError('Dimension should be greater than 0')
+    total_length = 1
 
-    if current_dimension_idx == len(boyut) - 1:
-        return [
-            random.randint(*aralik_list) if use_integer else random.uniform(*aralik_list)
-                for _ in range(current_dimension)
-        ]
+    for el in boyut:
+        total_length *= el
+
+    unnested_list = [random.randint(*aralik_list) if use_integer else random.uniform(*aralik_list)
+        for _ in range(total_length)
+    ]
     
-    return [create_nested_list(boyut, aralik_list, current_dimension_idx + 1, use_integer) for _ in range(current_dimension)]
+    return nest_list(unnested_list, boyut)
 
 
 def create_nested_list_with_fill(boyut: tuple, current_dimension_idx: int, fill) -> list:
     """
     I could've modified the function above to accept another parameter, but I didn't want to interfere with the random number generation
     """
-    current_dimension = boyut[current_dimension_idx]
+    if len(boyut) == 0:
+        return fill
 
-    if current_dimension == 0:
-        raise ValueError('Dimension should be greater than 0')
+    total_length = 1
 
-    if current_dimension_idx == len(boyut) - 1:
-        return [
-            fill
-                for _ in range(current_dimension)
-        ]
+    for el in boyut:
+        total_length *= el
+
+    unnested_list = [fill for _ in range(total_length)]
     
-    return [create_nested_list_with_fill(boyut, current_dimension_idx + 1, fill) for _ in range(current_dimension)]
+    return nest_list(unnested_list, boyut)
 
 
 def get_transpose_of_nested_list(nested_list: list | int | float) -> list | int | float:
@@ -193,9 +193,10 @@ def unnest_list(nested_list: list) -> list:
     ):
         return [nested_list]
     
-    return [
-        el for sublist in nested_list for el in unnest_list(sublist)
-    ]
+    if type(nested_list[0]) == int or type(nested_list[0]) == float:
+        return nested_list
+
+    return list(map(lambda x: unnest_list(x), nested_list))
 
 
 def nest_list(unnested_list: list, boyut: tuple) -> list:
@@ -214,7 +215,7 @@ def nest_list(unnested_list: list, boyut: tuple) -> list:
         prod *= el
 
     return [
-        nest_list(unnested_list[i*prod:], boyut[1:]) for i in range(boyut[0])
+        nest_list(unnested_list[i*prod:(i+1)*prod], boyut[1:]) for i in range(boyut[0])
     ]
 
 
@@ -1081,7 +1082,7 @@ def rastgele_dogal(boyut: tuple, aralik: tuple = (0, 100), dagilim='uniform') ->
 
         return gergen(random_scalar)
 
-    return gergen(create_nested_list(boyut, aralik_list, 0, True))
+    return gergen(create_nested_list(boyut, aralik_list, True))
 
 
 def rastgele_gercek(boyut: tuple, aralik: tuple = (0.0,1.0), dagilim = None) -> gergen:
@@ -1104,7 +1105,7 @@ def rastgele_gercek(boyut: tuple, aralik: tuple = (0.0,1.0), dagilim = None) -> 
 
         return gergen(random_scalar)
     
-    return gergen(create_nested_list(boyut, aralik_list, 0, False))
+    return gergen(create_nested_list(boyut, aralik_list, False))
 
 
 ######################################################################
