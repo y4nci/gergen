@@ -193,10 +193,9 @@ def unnest_list(nested_list: list) -> list:
     ):
         return [nested_list]
     
-    if type(nested_list[0]) == int or type(nested_list[0]) == float:
-        return nested_list
-
-    return list(map(lambda x: unnest_list(x), nested_list))
+    return [
+        el for sublist in nested_list for el in unnest_list(sublist)
+    ]
 
 
 def nest_list(unnested_list: list, boyut: tuple) -> list:
@@ -1026,6 +1025,7 @@ class gergen:
 
             return gergen(nest_list(resulting_gergen_veri, resulting_gergen_boyut))
 
+        print(unnested_veri)
         return sum(unnested_veri)
 
     def ortalama(self, eksen=None):
