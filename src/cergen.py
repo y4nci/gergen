@@ -845,7 +845,7 @@ class gergen:
 
     def log(self):
     #Applies the logarithm function to each element of the gergen object, using the base 10.
-        return gergen(map_nested_list(self.__veri, lambda x: math.log(x, 10)))
+        return gergen(map_nested_list(self.__veri, lambda x: math.log10(x)))
 
     def ln(self):
     #Applies the natural logarithm function to each element of the gergen object.
