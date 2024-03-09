@@ -84,6 +84,21 @@ class TestResult:
 ######################################################################
 #------------------------- HELPER FUNCTIONS -------------------------#
 ######################################################################
+def get_total_element_count_from_dimensions(boyut: tuple) -> int:
+    total_element_count = 1
+
+    for el in boyut:
+        total_element_count *= el
+
+    return total_element_count
+
+
+def get_total_element_count_from_nested_list(nested_list: list) -> int:
+    stringified_nested_list = str(nested_list)
+
+    return stringified_nested_list.count(',') + 1
+
+
 def create_nested_list(boyut: tuple, aralik_list: list, use_integer: bool) -> list:
     if len(boyut) == 0:
         return random.randint(*aralik_list) if use_integer else random.uniform(*aralik_list)
@@ -146,7 +161,7 @@ def get_transpose_of_nested_list(nested_list: list | int | float) -> list | int 
     """
     digital_clock = [0 for _ in range(len(original_shape))]
 
-    element_count = len(unnest_list(nested_list))
+    element_count = get_total_element_count_from_dimensions(original_shape)
 
     counter = 0
 
@@ -198,7 +213,7 @@ def unnest_list(nested_list: list) -> list:
     ]
 
 
-def nest_list(unnested_list: list, boyut: tuple, prod: int = -1) -> list:
+def nest_list(unnested_list: list, boyut: tuple, total_element_count: int = -1) -> list:
     if len(boyut) == 0:
         return unnested_list[0]
     
@@ -208,14 +223,20 @@ def nest_list(unnested_list: list, boyut: tuple, prod: int = -1) -> list:
     if isinstance(unnested_list, (int, float)):
         return unnested_list
 
-    if prod == -1:
-        prod = 1
+    if total_element_count == -1:
+        total_element_count = 1
 
         for el in boyut[1:]:
-            prod *= el
+            total_element_count *= el
+
+    sublist_element_count = int(total_element_count / boyut[1])
 
     return [
-        nest_list(unnested_list[i*prod:(i+1)*prod], boyut[1:], int(prod / boyut[1])) for i in range(boyut[0])
+        nest_list(
+            unnested_list[i * total_element_count : (i + 1) * total_element_count], 
+            boyut[1:], 
+            sublist_element_count
+        ) for i in range(boyut[0])
     ]
 
 
@@ -667,6 +688,8 @@ class gergen:
     __multiplier = Multiplication()
     __divider = Division()
 
+    __unnested_veri = None
+
 
     def __init__(self, veri=None):
     # The constructor for the 'gergen' class.
@@ -687,7 +710,6 @@ class gergen:
     # To create an empty tensor, simply instantiate the class without arguments:
     # empty_tensor = gergen()
         self.__veri = veri
-        self.D = get_transpose_of_nested_list(veri)
         self.__boyut = get_dimensions_of_nested_list(veri)
 
     def __getitem__(self, index) -> gergen:
@@ -791,7 +813,7 @@ class gergen:
         if type(self.__veri) == int or type(self.__veri) == float:
             return 1
         
-        return len(unnest_list(self.__veri))
+        return len(self.duzlestir())
         
 
     def boyut(self):
@@ -800,7 +822,10 @@ class gergen:
 
     def devrik(self):
     # Returns the transpose of gergen
-        return gergen(self.D)
+        if self.D is None:
+            self.D = gergen(get_transpose_of_nested_list(self.__veri))
+
+        return self.D
 
     def sin(self):
     #Calculates the sine of each element in the given `gergen`.
@@ -839,7 +864,7 @@ class gergen:
         if p <= 0:
             raise ValueError('p should be a positive integer')
 
-        unnested_list = unnest_list(self.__veri)
+        unnested_list = self.duzlestir()
 
         return sum([abs(el) ** p for el in unnested_list]) ** (1 / p)
 
@@ -849,7 +874,10 @@ class gergen:
 
     def duzlestir(self):
     #Converts the gergen object's multi-dimensional structure into a 1D structure, effectively 'flattening' the object.
-        return unnest_list(self.__veri)
+        if self.__unnested_veri is None:
+            self.__unnested_veri = unnest_list(self.__veri)
+        
+        return self.__unnested_veri
 
     def boyutlandir(self, yeni_boyut):
     #Reshapes the gergen object to a new shape 'yeni_boyut', which is specified as a tuple.
@@ -865,7 +893,7 @@ class gergen:
         if yeni_uzunluk != current_uzunluk:
             raise ValueError('The new shape should have the same number of elements as the original shape')
 
-        unnested_list = unnest_list(self.__veri)
+        unnested_list = self.duzlestir()
 
         return gergen(nest_list(unnested_list, yeni_boyut))
 
@@ -970,7 +998,7 @@ class gergen:
         the eksen param is the same param as the axis param in numpy's sum function.
         """
 
-        unnested_veri = unnest_list(self.__veri)
+        unnested_veri = self.duzlestir()
 
         if eksen is not None:
             if not isinstance(eksen, int):
@@ -1048,7 +1076,7 @@ class gergen:
 
         divisor = self.uzunluk() if eksen is None else self.__boyut[eksen]
 
-        return self.topla(eksen) / divisor
+        return self.topla(eksen) / divisor        
     
 
 ######################################################################
