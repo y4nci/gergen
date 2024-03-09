@@ -100,7 +100,7 @@ def create_nested_list(boyut: tuple, aralik_list: list, use_integer: bool) -> li
     return nest_list(unnested_list, boyut)
 
 
-def create_nested_list_with_fill(boyut: tuple, current_dimension_idx: int, fill) -> list:
+def create_nested_list_with_fill(boyut: tuple, fill) -> list:
     """
     I could've modified the function above to accept another parameter, but I didn't want to interfere with the random number generation
     """
@@ -127,7 +127,7 @@ def get_transpose_of_nested_list(nested_list: list | int | float) -> list | int 
     original_shape = get_dimensions_of_nested_list(nested_list)
     new_shape = original_shape[::-1]
 
-    transposed_nested_list = create_nested_list_with_fill(new_shape, 0, math.inf)
+    transposed_nested_list = create_nested_list_with_fill(new_shape, math.inf)
 
     tuple_indexed_original = TupleIndexedList(nested_list)
     tuple_indexed_transposed = TupleIndexedList(transposed_nested_list)
@@ -198,7 +198,7 @@ def unnest_list(nested_list: list) -> list:
     ]
 
 
-def nest_list(unnested_list: list, boyut: tuple) -> list:
+def nest_list(unnested_list: list, boyut: tuple, prod: int = -1) -> list:
     if len(boyut) == 0:
         return unnested_list[0]
     
@@ -207,14 +207,15 @@ def nest_list(unnested_list: list, boyut: tuple) -> list:
 
     if isinstance(unnested_list, (int, float)):
         return unnested_list
-    
-    prod = 1
 
-    for el in boyut[1:]:
-        prod *= el
+    if prod == -1:
+        prod = 1
+
+        for el in boyut[1:]:
+            prod *= el
 
     return [
-        nest_list(unnested_list[i*prod:(i+1)*prod], boyut[1:]) for i in range(boyut[0])
+        nest_list(unnested_list[i*prod:(i+1)*prod], boyut[1:], int(prod / boyut[1])) for i in range(boyut[0])
     ]
 
 
@@ -1025,7 +1026,6 @@ class gergen:
 
             return gergen(nest_list(resulting_gergen_veri, resulting_gergen_boyut))
 
-        print(unnested_veri)
         return sum(unnested_veri)
 
     def ortalama(self, eksen=None):

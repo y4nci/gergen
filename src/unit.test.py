@@ -48,7 +48,7 @@ def test_create_nested_list_with_fill():
     start = time.time()
 
     # nested list
-    nested_list = create_nested_list_with_fill(shape, 0, fill)
+    nested_list = create_nested_list_with_fill(shape, fill)
 
     end = time.time()
 
