@@ -1,3 +1,12 @@
+"""
+Solution for the first homework of the 2023-2024 Spring class of the Introduction to Deep Learning course at METU.
+
+You can find the results of the comparison with numpy at the bottom of the file.
+
+Baran Yancı, 2449015
+"""
+
+
 import math
 import numpy as np
 import random
@@ -1259,6 +1268,24 @@ def example_3():
     return test_results
 
 
+"""
+COMPARISON RESULTS WITH NUMPY
+
+example_1:
+    Are the results the same?: True
+    Time taken for gergen: 0.03065013885498047
+    Time taken for numpy: 0.00010061264038085938
+
+example_2:
+    Are the results the same?: True
+    Time taken for gergen: 0.034868717193603516
+    Time taken for numpy: 0.00017833709716796875
+
+example_3:
+    Are the results the same?: True
+    Time taken for gergen: 0.02022266387939453
+    Time taken for numpy: 0.0003833770751953125
+"""
 
 
 
